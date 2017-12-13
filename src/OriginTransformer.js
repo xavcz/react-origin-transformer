@@ -28,9 +28,11 @@ export default class OriginTransformer extends React.Component {
   render() {
     const { children, x, y, ...props } = this.props;
     return React.Children.map(this.props.children, child => {
+      const refKey = child.type.name === 'StyledComponent' ? 'innerRef' : 'ref';
+
       return React.cloneElement(child, {
         ...props,
-        ref: element => (this.element = element),
+        [refKey]: element => (this.element = element),
 
         style: {
           ...child.props.style,
