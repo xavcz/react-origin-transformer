@@ -5,38 +5,47 @@ import React from 'react';
 // and passing this origin to the transform-origin css property
 export default class OriginTransformer extends React.Component {
   state = {
-    x: 0,
-    y: 0,
+    elementsOrigin: [],
   };
 
+  // unique list of DOM nodes references
+  elements = new Set();
+
   componentDidMount() {
-    const { x: posX, y: posY, width, height } = this.element.getBBox();
-    const { x: initialX, y: initialY } = this.state;
+    const elementsOrigin = Array.from(this.elements).map(element => {
+      const { x: posX, y: posY, width, height } = element.getBBox();
+      const { x: percentX = 0, y: percentY = 0 } = this.props;
 
-    const { x: percentX = 0, y: percentY = 0 } = this.props;
-
-    if (!initialX && !initialY) {
-      const { x, y } = {
+      return {
         x: posX + width * percentX / 100,
         y: posY + height * percentY / 100,
       };
-      // console.log({ x, y });
-      this.setState(() => ({ x, y }));
-    }
+    });
+
+    console.log(elementsOrigin);
+    this.setState(() => ({ elementsOrigin }));
+  }
+
+  componentDidUpdate() {
+    this.elements.clear();
   }
 
   render() {
     const { children, x, y, ...props } = this.props;
-    return React.Children.map(this.props.children, child => {
+    const { elementsOrigin } = this.state;
+
+    return React.Children.map(this.props.children, (child, index) => {
       const refKey = child.type.name === 'StyledComponent' ? 'innerRef' : 'ref';
 
       return React.cloneElement(child, {
         ...props,
-        [refKey]: element => (this.element = element),
-
+        [refKey]: element => this.elements.add(element),
         style: {
           ...child.props.style,
-          transformOrigin: `${this.state.x}px ${this.state.y}px`,
+          transformOrigin:
+            elementsOrigin.length > 0
+              ? `${elementsOrigin[index].x}px ${elementsOrigin[index].y}px`
+              : undefined,
         },
       });
     });
