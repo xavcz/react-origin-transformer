@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "react-scripts test --env=jsdom",
-    "cosmos": "cosmos"
+    "cosmos": "cosmos",
+    "cosmos:export": "cosmos-export"
   },
   "devDependencies": {
     "react-cosmos": "^3.1.1"
